@@ -1,9 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { CalendarDays, Check, Clock, Phone, User, Users } from "lucide-react";
 import { OPEN_RANGE } from "@/lib/data";
 
 type Errors = Partial<Record<"name" | "phone" | "date" | "time" | "guests", string>>;
+
+type Summary = { name: string; phone: string; date: string; time: string; guests: number };
 
 const PHONE_RE = /^(0|\+84)(3|5|7|8|9)\d{8}$/;
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -54,7 +57,7 @@ const field =
 
 export default function BookingForm() {
   const [errors, setErrors] = useState<Errors>({});
-  const [done, setDone] = useState<string | null>(null);
+  const [done, setDone] = useState<Summary | null>(null);
   const [dateText, setDateText] = useState("");
   const [time, setTime] = useState("");
   const pickerRef = useRef<HTMLInputElement>(null);
@@ -105,30 +108,47 @@ export default function BookingForm() {
     if (Object.keys(e).length) return;
 
     // TODO: gửi dữ liệu tới API / email / Google Sheets.
-    setDone(name);
+    setDone({ name, phone: String(data.get("phone")).trim(), date: dateText, time, guests });
     setDateText("");
     setTime("");
     form.reset();
   }
 
-  if (done)
+  if (done) {
+    const rows = [
+      { Icon: User, label: "Người đặt", value: done.name },
+      { Icon: Phone, label: "Số điện thoại", value: done.phone },
+      { Icon: CalendarDays, label: "Ngày", value: done.date },
+      { Icon: Clock, label: "Giờ", value: done.time },
+      { Icon: Users, label: "Số người", value: `${done.guests} người` },
+    ];
     return (
-      <div role="status" className="rounded-2xl bg-white p-8 text-center shadow-sm">
-        <p className="text-4xl" aria-hidden>
-          ☕
-        </p>
-        <h3 className="mt-3 font-serif text-2xl font-bold">Cảm ơn {done}!</h3>
+      <div role="status" className="rounded-2xl bg-white p-6 text-center shadow-sm sm:p-8">
+        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-caramel text-white">
+          <Check size={28} strokeWidth={2.5} aria-hidden />
+        </span>
+        <h3 className="mt-4 font-serif text-2xl font-bold">Đặt bàn thành công!</h3>
         <p className="mt-2 text-brown">
-          Mộc đã nhận yêu cầu đặt bàn của bạn. Chúng mình sẽ gọi xác nhận trong ít phút.
+          Cảm ơn {done.name}. Mộc sẽ gọi xác nhận trong ít phút.
         </p>
+        <dl className="mt-6 divide-y divide-brown/15 rounded-xl bg-cream px-4 text-left">
+          {rows.map(({ Icon, label, value }) => (
+            <div key={label} className="flex items-center gap-3 py-3">
+              <Icon size={18} className="shrink-0 text-caramel" aria-hidden />
+              <dt className="text-sm text-brown">{label}</dt>
+              <dd className="ml-auto font-medium text-bark">{value}</dd>
+            </div>
+          ))}
+        </dl>
         <button
           onClick={() => setDone(null)}
-          className="mt-5 text-sm font-medium text-caramel underline underline-offset-4"
+          className="mt-6 rounded-full border border-bark px-6 py-3 text-sm font-medium text-bark transition hover:bg-bark hover:text-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-caramel"
         >
-          Đặt thêm một bàn khác
+          Đặt bàn khác
         </button>
       </div>
     );
+  }
 
   const err = (k: keyof Errors) =>
     errors[k] ? (
@@ -189,10 +209,7 @@ export default function BookingForm() {
               aria-label="Mở lịch chọn ngày"
               className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-brown hover:text-caramel"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <rect x="3" y="5" width="18" height="16" rx="2" />
-                <path d="M3 10h18M8 3v4M16 3v4" />
-              </svg>
+              <CalendarDays size={20} aria-hidden />
             </button>
             <input
               ref={pickerRef}

@@ -25,6 +25,30 @@ export const IMG = {
   ],
 };
 
+export const FEATURED = [
+  {
+    name: "Cà phê muối",
+    desc: "Lớp kem muối mặn nhẹ phủ trên cà phê đậm – món được gọi nhiều nhất tại Mộc.",
+    price: 45000,
+    img: "1461023058943-07fcbe16d735",
+    alt: "Ly cà phê đá",
+  },
+  {
+    name: "Bánh croissant bơ",
+    desc: "Nướng mới mỗi sáng, vỏ giòn rụm, thơm bơ, hợp với một ly latte nóng.",
+    price: 42000,
+    img: "1555507036-ab1f4038808a",
+    alt: "Bánh croissant bơ vàng giòn",
+  },
+  {
+    name: "Tiramisu Mộc",
+    desc: "Bánh mềm mịn, thấm cà phê espresso và phủ cacao, ngọt vừa đủ.",
+    price: 55000,
+    img: "1571877227200-a0d98ea607e9",
+    alt: "Miếng bánh tiramisu phủ cacao",
+  },
+];
+
 export type MenuItem = { name: string; desc: string; price: number };
 export type MenuGroup = { title: string; items: MenuItem[] };
 
@@ -77,7 +101,7 @@ export const OPEN_RANGE = {
 };
 
 export const MAP_QUERY = "Hồ Xuân Hương, Đà Lạt";
-export const MAP_EMBED = `https://www.google.com/maps?q=${encodeURIComponent(MAP_QUERY)}&z=15&output=embed`;
+export const MAP_EMBED = `https://www.google.com/maps?q=${encodeURIComponent(MAP_QUERY)}&hl=vi&z=15&output=embed`;
 export const MAP_DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(MAP_QUERY)}`;
 
 export const vnd = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + "đ";

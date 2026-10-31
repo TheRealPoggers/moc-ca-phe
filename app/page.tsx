@@ -3,7 +3,10 @@ import Header from "@/components/Header";
 import Section from "@/components/Section";
 import BookingForm from "@/components/BookingForm";
 import Footer from "@/components/Footer";
-import { SITE, IMG, MENU, REVIEWS, HOURS, MAP_EMBED, MAP_DIRECTIONS, unsplash, vnd } from "@/lib/data";
+import Gallery from "@/components/Gallery";
+import MobileCta from "@/components/MobileCta";
+import { MapPin, Phone } from "lucide-react";
+import { SITE, IMG, MENU, FEATURED, REVIEWS, HOURS, MAP_EMBED, MAP_DIRECTIONS, unsplash, vnd } from "@/lib/data";
 
 export default function Home() {
   return (
@@ -62,6 +65,32 @@ export default function Home() {
           </div>
         </Section>
 
+        {/* Món nổi bật */}
+        <Section id="mon-noi-bat" eyebrow="Được yêu thích nhất" title="Món nổi bật">
+          <div className="grid gap-6 md:grid-cols-3">
+            {FEATURED.map((f) => (
+              <article key={f.name} className="overflow-hidden rounded-2xl bg-white shadow-sm">
+                <div className="relative aspect-[4/3]">
+                  <Image
+                    src={unsplash(f.img, 900)}
+                    alt={f.alt}
+                    fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h3 className="font-serif text-xl font-bold">{f.name}</h3>
+                    <span className="shrink-0 font-semibold text-caramel">{vnd(f.price)}</span>
+                  </div>
+                  <p className="mt-2 text-base leading-snug text-bark/90">{f.desc}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </Section>
+
         {/* Menu */}
         <Section id="menu" eyebrow="Thức uống & món ngon" title="Menu" className="bg-cream-deep">
           <div className="grid gap-6 md:grid-cols-3">
@@ -86,19 +115,7 @@ export default function Home() {
 
         {/* Không gian */}
         <Section id="khong-gian" eyebrow="Nơi bạn thuộc về" title="Không gian">
-          <div className="grid auto-rows-[160px] grid-cols-2 gap-3 md:auto-rows-[200px] md:grid-cols-4">
-            {IMG.gallery.map((g) => (
-              <div key={g.id} className={`relative overflow-hidden rounded-xl ${g.span}`}>
-                <Image
-                  src={unsplash(g.id, 900)}
-                  alt={g.alt}
-                  fill
-                  sizes="(min-width: 768px) 25vw, 50vw"
-                  className="object-cover transition duration-500 hover:scale-105"
-                />
-              </div>
-            ))}
-          </div>
+          <Gallery />
         </Section>
 
         {/* Đánh giá */}
@@ -132,9 +149,12 @@ export default function Home() {
                 ))}
               </ul>
               <div className="mt-5 space-y-2 border-t border-brown/15 pt-5 text-bark">
-                <p>📍 {SITE.address}</p>
-                <p>
-                  📞{" "}
+                <p className="flex items-start gap-3">
+                  <MapPin size={20} className="mt-0.5 shrink-0 text-brown" aria-hidden />
+                  <span>{SITE.address}</span>
+                </p>
+                <p className="flex items-center gap-3">
+                  <Phone size={20} className="shrink-0 text-brown" aria-hidden />
                   <a href={SITE.phoneHref} className="font-medium underline underline-offset-4">
                     {SITE.phone}
                   </a>
@@ -170,6 +190,7 @@ export default function Home() {
         </Section>
       </main>
       <Footer />
+      <MobileCta />
     </>
   );
 }

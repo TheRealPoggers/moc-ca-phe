@@ -12,17 +12,21 @@ Landing page cho quán cà phê giả định **Mộc Cà Phê** ở Đà Lạt.
 
 ## Tính năng
 
+- Header trong suốt ở đầu trang, đổi sang nền nâu đậm có bóng khi cuộn; menu hamburger trên mobile (tự đóng khi bấm link)
 - Hero ảnh lớn với nút **Đặt bàn**
-- Giới thiệu, Menu chia nhóm (giá VNĐ), Không gian (gallery ảnh)
+- Giới thiệu, **Món nổi bật** (3 món có ảnh, giá), Menu chia nhóm (giá VNĐ)
+- Gallery Không gian: ảnh phóng nhẹ khi hover, bấm để mở lightbox (nút đóng, phím Esc, bấm nền để đóng)
 - Đánh giá khách hàng (ghi rõ là nội dung mẫu)
-- Giờ mở cửa + Google Maps nhúng
-- Form đặt bàn có kiểm tra dữ liệu (tên, SĐT Việt Nam, ngày giờ trong tương lai và trong giờ mở cửa, số người 1–20); hiện thông báo thành công (chưa gửi dữ liệu đi đâu)
+- Giờ mở cửa, số điện thoại, nút **Chỉ đường** + Google Maps nhúng (tiếng Việt)
+- Form đặt bàn có kiểm tra dữ liệu: ô ngày dd/mm/yyyy, dropdown giờ mỗi 30 phút theo giờ mở cửa; thành công hiện khung tóm tắt đơn đặt (chưa gửi dữ liệu đi đâu)
+- Mobile: thanh cố định dưới đáy với nút **Gọi** / **Đặt bàn** (ẩn khi đang ở phần đặt bàn)
+- Hiệu ứng fade-up khi cuộn (IntersectionObserver), tự tắt khi bật `prefers-reduced-motion`
 - Footer với nút Zalo / Messenger / Gọi điện
 - SEO cơ bản: title, description, Open Graph, `lang="vi"`
 
 ## Công nghệ
 
-Next.js (App Router) · TypeScript · Tailwind CSS v4 · `next/image` · `next/font` (Be Vietnam Pro, Playfair Display – có subset tiếng Việt) · Playwright (chụp ảnh màn hình)
+Next.js (App Router) · TypeScript · Tailwind CSS v4 · `next/image` · `next/font` (Be Vietnam Pro, Playfair Display – có subset tiếng Việt) · lucide-react · Playwright (chụp ảnh màn hình)
 
 ## Chạy local
 

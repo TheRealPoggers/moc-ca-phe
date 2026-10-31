@@ -43,7 +43,12 @@ export const viewport: Viewport = { themeColor: "#3b2a20" };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" className={`${body.variable} ${display.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <noscript>
+          <style>{".reveal{opacity:1!important;transform:none!important}"}</style>
+        </noscript>
+        {children}
+      </body>
     </html>
   );
 }
