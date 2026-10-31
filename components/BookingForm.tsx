@@ -1,51 +1,113 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { OPEN_RANGE } from "@/lib/data";
 
-type Errors = Partial<Record<"name" | "phone" | "when" | "guests", string>>;
+type Errors = Partial<Record<"name" | "phone" | "date" | "time" | "guests", string>>;
 
 const PHONE_RE = /^(0|\+84)(3|5|7|8|9)\d{8}$/;
+const pad = (n: number) => String(n).padStart(2, "0");
 
-function validate(f: FormData): Errors {
-  const e: Errors = {};
-  const name = String(f.get("name") ?? "").trim();
-  const phone = String(f.get("phone") ?? "").replace(/[\s.-]/g, "");
-  const when = String(f.get("when") ?? "");
-  const guests = Number(f.get("guests"));
+/** "dd/mm/yyyy" -> Date (null nếu không hợp lệ) */
+function parseDate(s: string): Date | null {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s);
+  if (!m) return null;
+  const [d, mo, y] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const date = new Date(y, mo - 1, d);
+  return date.getFullYear() === y && date.getMonth() === mo - 1 && date.getDate() === d
+    ? date
+    : null;
+}
 
-  if (name.length < 2) e.name = "Vui lòng nhập họ tên (ít nhất 2 ký tự).";
-  if (!PHONE_RE.test(phone))
-    e.phone = "Số điện thoại không hợp lệ (ví dụ: 0912 345 678).";
-  if (!when) e.when = "Vui lòng chọn ngày và giờ.";
-  else if (new Date(when).getTime() < Date.now())
-    e.when = "Thời gian đặt bàn phải ở tương lai.";
-  else {
-    const d = new Date(when);
-    const mins = d.getHours() * 60 + d.getMinutes();
-    if (mins < 6 * 60 + 30 || mins > 23 * 60)
-      e.when = "Quán mở cửa từ 06:30 đến 23:00.";
+const isWeekend = (d: Date) => d.getDay() === 0 || d.getDay() === 6;
+const startOfToday = () => {
+  const t = new Date();
+  return new Date(t.getFullYear(), t.getMonth(), t.getDate());
+};
+
+/** Các khung giờ mỗi 30 phút trong giờ mở cửa (khung cuối cách giờ đóng cửa 30 phút). */
+function slotsFor(date: Date | null): string[] {
+  const range = date && isWeekend(date) ? OPEN_RANGE.weekend : OPEN_RANGE.weekday;
+  const out: string[] = [];
+  for (let m = range.open; m <= range.close - 30; m += 30)
+    out.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
+  if (date && date.getTime() === startOfToday().getTime()) {
+    const now = new Date();
+    const cur = now.getHours() * 60 + now.getMinutes();
+    return out.filter((s) => {
+      const [h, mi] = s.split(":").map(Number);
+      return h * 60 + mi > cur;
+    });
   }
-  if (!Number.isInteger(guests) || guests < 1 || guests > 20)
-    e.guests = "Số người từ 1 đến 20.";
-  return e;
+  return out;
+}
+
+function formatTyping(raw: string) {
+  const digits = raw.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
 
 const field =
-  "w-full rounded-xl border border-brown/25 bg-white px-4 py-3 text-base text-bark outline-none transition focus:border-caramel focus:ring-2 focus:ring-caramel/30";
+  "w-full rounded-xl border border-brown/40 bg-white px-4 py-3 text-base text-bark outline-none transition placeholder:text-brown/60 focus:border-caramel focus:ring-2 focus:ring-caramel/30";
 
 export default function BookingForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [done, setDone] = useState<string | null>(null);
+  const [dateText, setDateText] = useState("");
+  const [time, setTime] = useState("");
+  const pickerRef = useRef<HTMLInputElement>(null);
+
+  const parsed = parseDate(dateText);
+  const slots = slotsFor(parsed);
+
+  function onDateText(v: string) {
+    setDateText(formatTyping(v));
+    setTime("");
+  }
+
+  function onNativePick(iso: string) {
+    if (!iso) return;
+    const [y, m, d] = iso.split("-");
+    setDateText(`${d}/${m}/${y}`);
+    setTime("");
+  }
+
+  function openPicker() {
+    const el = pickerRef.current;
+    if (!el) return;
+    if (typeof el.showPicker === "function") el.showPicker();
+    else el.click();
+  }
 
   function onSubmit(ev: React.FormEvent<HTMLFormElement>) {
     ev.preventDefault();
     const form = ev.currentTarget;
     const data = new FormData(form);
-    const errs = validate(data);
-    setErrors(errs);
-    if (Object.keys(errs).length) return;
+    const name = String(data.get("name") ?? "").trim();
+    const phone = String(data.get("phone") ?? "").replace(/[\s.-]/g, "");
+    const guests = Number(data.get("guests"));
+
+    const e: Errors = {};
+    if (name.length < 2) e.name = "Vui lòng nhập họ tên (ít nhất 2 ký tự).";
+    if (!PHONE_RE.test(phone))
+      e.phone = "Số điện thoại không hợp lệ (ví dụ: 0912 345 678).";
+    if (!dateText) e.date = "Vui lòng chọn ngày.";
+    else if (!parsed) e.date = "Ngày không hợp lệ. Định dạng: dd/mm/yyyy.";
+    else if (parsed < startOfToday()) e.date = "Ngày đặt bàn không được ở quá khứ.";
+    if (!time) e.time = "Vui lòng chọn khung giờ.";
+    else if (parsed && !slots.includes(time)) e.time = "Khung giờ không còn hợp lệ, vui lòng chọn lại.";
+    if (!Number.isInteger(guests) || guests < 1 || guests > 20)
+      e.guests = "Số người từ 1 đến 20.";
+
+    setErrors(e);
+    if (Object.keys(e).length) return;
+
     // TODO: gửi dữ liệu tới API / email / Google Sheets.
-    setDone(String(data.get("name")).trim());
+    setDone(name);
+    setDateText("");
+    setTime("");
     form.reset();
   }
 
@@ -70,7 +132,7 @@ export default function BookingForm() {
 
   const err = (k: keyof Errors) =>
     errors[k] ? (
-      <p id={`${k}-err`} className="mt-1 text-sm text-red-700">
+      <p id={`${k}-err`} className="mt-1 text-sm text-red-800">
         {errors[k]}
       </p>
     ) : null;
@@ -78,6 +140,10 @@ export default function BookingForm() {
     "aria-invalid": errors[k] ? true : undefined,
     "aria-describedby": errors[k] ? `${k}-err` : undefined,
   });
+  const todayIso = (() => {
+    const t = startOfToday();
+    return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
+  })();
 
   return (
     <form
@@ -99,29 +165,85 @@ export default function BookingForm() {
         <input id="phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" className={field} placeholder="0912 345 678" {...aria("phone")} />
         {err("phone")}
       </div>
-      <div className="grid gap-4 sm:grid-cols-[1fr_8rem]">
+
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="when" className="mb-1 block text-sm font-medium">
-            Ngày giờ
+          <label htmlFor="date" className="mb-1 block text-sm font-medium">
+            Ngày
           </label>
-          <input id="when" name="when" type="datetime-local" className={field} {...aria("when")} />
-          {err("when")}
+          <div className="relative">
+            <input
+              id="date"
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="dd/mm/yyyy"
+              maxLength={10}
+              value={dateText}
+              onChange={(e) => onDateText(e.target.value)}
+              className={`${field} pr-12`}
+              {...aria("date")}
+            />
+            <button
+              type="button"
+              onClick={openPicker}
+              aria-label="Mở lịch chọn ngày"
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-brown hover:text-caramel"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <rect x="3" y="5" width="18" height="16" rx="2" />
+                <path d="M3 10h18M8 3v4M16 3v4" />
+              </svg>
+            </button>
+            <input
+              ref={pickerRef}
+              type="date"
+              min={todayIso}
+              tabIndex={-1}
+              aria-hidden
+              onChange={(e) => onNativePick(e.target.value)}
+              className="pointer-events-none absolute right-0 bottom-0 h-0 w-0 opacity-0"
+            />
+          </div>
+          {err("date")}
         </div>
         <div>
-          <label htmlFor="guests" className="mb-1 block text-sm font-medium">
-            Số người
+          <label htmlFor="time" className="mb-1 block text-sm font-medium">
+            Khung giờ
           </label>
-          <input id="guests" name="guests" type="number" min={1} max={20} defaultValue={2} className={field} {...aria("guests")} />
-          {err("guests")}
+          <select
+            id="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            disabled={!parsed}
+            className={`${field} disabled:cursor-not-allowed disabled:bg-cream-deep`}
+            {...aria("time")}
+          >
+            <option value="">{parsed ? "Chọn giờ" : "Chọn ngày trước"}</option>
+            {slots.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          {err("time")}
         </div>
       </div>
+
+      <div>
+        <label htmlFor="guests" className="mb-1 block text-sm font-medium">
+          Số người
+        </label>
+        <input id="guests" name="guests" type="number" min={1} max={20} defaultValue={2} className={field} {...aria("guests")} />
+        {err("guests")}
+      </div>
+
       <button
         type="submit"
         className="w-full rounded-full bg-bark px-6 py-3.5 font-medium text-cream transition hover:bg-brown focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-caramel"
       >
         Gửi yêu cầu đặt bàn
       </button>
-      <p className="text-center text-xs text-brown/80">
+      <p className="text-center text-xs text-brown">
         Đây là bản demo: dữ liệu chưa được gửi đi đâu.
       </p>
     </form>

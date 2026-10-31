@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Section from "@/components/Section";
 import BookingForm from "@/components/BookingForm";
 import Footer from "@/components/Footer";
-import { SITE, IMG, MENU, REVIEWS, HOURS, unsplash, vnd } from "@/lib/data";
+import { SITE, IMG, MENU, REVIEWS, HOURS, MAP_EMBED, MAP_DIRECTIONS, unsplash, vnd } from "@/lib/data";
 
 export default function Home() {
   return (
@@ -11,7 +11,7 @@ export default function Home() {
       <Header />
       <main>
         {/* Hero */}
-        <section className="relative flex min-h-[88svh] items-center justify-center overflow-hidden text-center text-cream">
+        <section className="relative flex min-h-[85svh] md:min-h-[88svh] items-center justify-center overflow-hidden text-center text-cream">
           <Image
             src={unsplash(IMG.hero, 1920)}
             alt="Không gian Mộc Cà Phê với ánh đèn vàng ấm"
@@ -29,7 +29,7 @@ export default function Home() {
             </p>
             <a
               href="#dat-ban"
-              className="mt-8 inline-block rounded-full bg-caramel px-8 py-3.5 text-lg font-medium text-white shadow-lg transition hover:bg-[#a56731] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream"
+              className="mt-8 inline-block rounded-full bg-caramel px-8 py-3.5 text-lg font-medium text-white shadow-lg transition hover:bg-[#7d4817] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream"
             >
               Đặt bàn
             </a>
@@ -48,7 +48,7 @@ export default function Home() {
                 className="object-cover"
               />
             </div>
-            <div className="space-y-4 text-lg leading-relaxed text-brown">
+            <div className="space-y-5 text-lg leading-relaxed text-bark md:text-xl md:leading-relaxed">
               <p>
                 Mộc ra đời từ mong muốn đơn giản: có một nơi ở Đà Lạt để bạn ngồi xuống, nghe tiếng mưa trên mái và uống một tách cà phê đúng vị.
               </p>
@@ -75,7 +75,7 @@ export default function Home() {
                         <span className="font-medium">{i.name}</span>
                         <span className="shrink-0 font-semibold text-caramel">{vnd(i.price)}</span>
                       </div>
-                      <p className="text-sm text-brown/90">{i.desc}</p>
+                      <p className="mt-0.5 text-base leading-snug text-bark/90">{i.desc}</p>
                     </li>
                   ))}
                 </ul>
@@ -107,14 +107,14 @@ export default function Home() {
             {REVIEWS.map((r) => (
               <figure key={r.name} className="rounded-2xl bg-cream p-6 shadow-sm">
                 <p className="text-caramel" aria-label="5 sao">★★★★★</p>
-                <blockquote className="mt-3 text-brown">“{r.text}”</blockquote>
+                <blockquote className="mt-3 text-bark">“{r.text}”</blockquote>
                 <figcaption className="mt-4 text-sm font-medium">
-                  {r.name} <span className="font-normal text-brown/70">· {r.role}</span>
+                  {r.name} <span className="font-normal text-brown">· {r.role}</span>
                 </figcaption>
               </figure>
             ))}
           </div>
-          <p className="mt-6 text-center text-sm italic text-brown/80">
+          <p className="mt-6 text-center text-sm italic text-brown">
             * Các đánh giá trên là nội dung mẫu, chỉ dùng để minh họa giao diện.
           </p>
         </Section>
@@ -122,7 +122,7 @@ export default function Home() {
         {/* Giờ mở cửa + bản đồ */}
         <Section id="gio-mo-cua" eyebrow="Ghé thăm Mộc" title="Giờ mở cửa & Địa chỉ">
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="flex flex-col rounded-2xl bg-white p-6 shadow-sm">
               <ul className="divide-y divide-brown/15">
                 {HOURS.map((h) => (
                   <li key={h.day} className="flex justify-between gap-4 py-3">
@@ -131,12 +131,28 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 text-brown">📍 {SITE.address}</p>
+              <div className="mt-5 space-y-2 border-t border-brown/15 pt-5 text-bark">
+                <p>📍 {SITE.address}</p>
+                <p>
+                  📞{" "}
+                  <a href={SITE.phoneHref} className="font-medium underline underline-offset-4">
+                    {SITE.phone}
+                  </a>
+                </p>
+              </div>
+              <a
+                href={MAP_DIRECTIONS}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex items-center justify-center self-start rounded-full bg-bark px-6 py-3 text-sm font-medium text-cream transition hover:bg-brown focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-caramel"
+              >
+                Chỉ đường
+              </a>
             </div>
             <div className="overflow-hidden rounded-2xl shadow-sm">
               <iframe
-                title="Bản đồ Mộc Cà Phê tại Đà Lạt"
-                src="https://www.google.com/maps?q=%C4%90%C3%A0+L%E1%BA%A1t,+L%C3%A2m+%C4%90%E1%BB%93ng&z=14&output=embed"
+                title="Bản đồ khu vực Hồ Xuân Hương, Đà Lạt"
+                src={MAP_EMBED}
                 className="h-72 w-full border-0 md:h-full md:min-h-72"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
@@ -148,7 +164,7 @@ export default function Home() {
 
         {/* Đặt bàn */}
         <Section id="dat-ban" eyebrow="Giữ chỗ cho bạn" title="Đặt bàn" className="bg-cream-deep">
-          <div className="mx-auto max-w-xl">
+          <div className="mx-auto max-w-2xl">
             <BookingForm />
           </div>
         </Section>

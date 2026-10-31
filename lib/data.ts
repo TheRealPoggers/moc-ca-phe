@@ -1,7 +1,7 @@
 export const SITE = {
   name: "Mộc Cà Phê",
   tagline: "Một góc nhỏ ấm áp giữa sương mù Đà Lạt",
-  address: "12 Đường Hoa Hồng, Phường 4, Đà Lạt, Lâm Đồng",
+  address: "Khu vực Hồ Xuân Hương, Phường 1, Đà Lạt, Lâm Đồng",
   // Thông tin liên hệ mẫu — thay bằng số thật trước khi dùng.
   phone: "0900 000 000",
   phoneHref: "tel:0900000000",
@@ -69,5 +69,15 @@ export const HOURS = [
   { day: "Thứ Bảy – Chủ Nhật", time: "06:30 – 23:00" },
   { day: "Ngày lễ", time: "06:30 – 23:00" },
 ];
+
+// Giờ mở cửa theo loại ngày (phút trong ngày) – dùng cho form đặt bàn.
+export const OPEN_RANGE = {
+  weekday: { open: 7 * 60, close: 22 * 60 },
+  weekend: { open: 6 * 60 + 30, close: 23 * 60 },
+};
+
+export const MAP_QUERY = "Hồ Xuân Hương, Đà Lạt";
+export const MAP_EMBED = `https://www.google.com/maps?q=${encodeURIComponent(MAP_QUERY)}&z=15&output=embed`;
+export const MAP_DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(MAP_QUERY)}`;
 
 export const vnd = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + "đ";

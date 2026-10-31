@@ -33,6 +33,15 @@ for (const [name, width, height] of [
   await page.locator("#gio-mo-cua").scrollIntoViewIfNeeded();
   await page.waitForTimeout(4000);
   await page.locator("#gio-mo-cua").screenshot({ path: `screenshots/${name}-map.png` });
+  // Form đặt bàn: điền ngày (dd/mm/yyyy) + chọn khung giờ
+  const d = new Date(Date.now() + 3 * 86400000);
+  const p2 = (n) => String(n).padStart(2, "0");
+  await page.fill("#date", `${p2(d.getDate())}${p2(d.getMonth() + 1)}${d.getFullYear()}`);
+  await page.selectOption("#time", "09:30");
+  await page.fill("#name", "Nguyễn Văn A");
+  await page.locator("#dat-ban").scrollIntoViewIfNeeded();
+  await page.locator("#dat-ban").screenshot({ path: `screenshots/${name}-form.png` });
+  await page.locator("footer").screenshot({ path: `screenshots/${name}-footer.png` });
   await ctx.close();
 }
 await browser.close();

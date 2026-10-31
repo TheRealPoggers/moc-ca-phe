@@ -24,7 +24,7 @@ export default function Header() {
         </nav>
         <a
           href="#dat-ban"
-          className="rounded-full bg-caramel px-4 py-1.5 text-sm font-medium text-white transition hover:bg-[#a56731]"
+          className="rounded-full bg-caramel px-4 py-1.5 text-sm font-medium text-white transition hover:bg-[#7d4817]"
         >
           Đặt bàn
         </a>
