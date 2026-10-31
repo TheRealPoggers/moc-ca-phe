@@ -17,7 +17,7 @@ const icon = {
 
 export default function Footer() {
   return (
-    <footer id="lien-he" className="bg-bark px-4 pb-28 pt-14 text-cream md:pb-14">
+    <footer id="lien-he" className="bg-bark px-4 py-14 text-cream">
       <div className="mx-auto max-w-6xl text-center">
         <p className="font-serif text-3xl font-bold">Mộc Cà Phê</p>
         <p className="mt-2 text-cream/85">{SITE.tagline}</p>

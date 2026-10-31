@@ -1,12 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CalendarCheck, Phone } from "lucide-react";
 import { SITE } from "@/lib/data";
 
 /** Thanh cố định đáy màn hình (chỉ mobile), ẩn khi phần đặt bàn đang hiển thị. */
 export default function MobileCta() {
   const [hidden, setHidden] = useState(false);
+  const barRef = useRef<HTMLDivElement>(null);
+
+  // Đo chiều cao thanh và ghi vào --cta-h để body chừa chỗ ở cuối trang.
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const apply = () => root.style.setProperty("--cta-h", `${el.offsetHeight}px`);
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--cta-h");
+    };
+  }, []);
 
   useEffect(() => {
     const target = document.getElementById("dat-ban");
@@ -20,6 +36,7 @@ export default function MobileCta() {
 
   return (
     <div
+      ref={barRef}
       aria-hidden={hidden}
       className={`fixed inset-x-0 bottom-0 z-40 border-t border-cream/15 bg-bark px-4 pt-3 shadow-[0_-4px_16px_rgba(0,0,0,0.2)] transition duration-300 md:hidden ${
         hidden ? "pointer-events-none translate-y-full opacity-0" : "translate-y-0 opacity-100"

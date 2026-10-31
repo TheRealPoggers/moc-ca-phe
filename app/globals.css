@@ -24,7 +24,13 @@ html {
 }
 
 body {
-  background: var(--cream);
+  /* Vùng padding-bottom chừa chỗ cho thanh CTA mobile được tô cùng màu footer,
+     để không lộ dải màu kem khi thanh bị ẩn. Desktop: --cta-h = 0. */
+  background: linear-gradient(
+    to top,
+    var(--bark) var(--cta-h, 0px),
+    var(--cream) var(--cta-h, 0px)
+  );
   color: var(--bark);
   font-family: var(--font-body), system-ui, sans-serif;
 }
